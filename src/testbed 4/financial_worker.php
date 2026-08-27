@@ -19,15 +19,6 @@ while (true) {
         $job_id = (int)$job['id'];
         $region = $job['region_filter']; // Payload sống lại tại đây
 
-        function sanitizeRegionInput($val) {
-            return trim($val);
-        }
-        $region = sanitizeRegionInput($job['region_filter']);
-
-        if (strlen($region) > 100) {
-            $region = substr($region, 0, 100);
-        }
-        
         // Cập nhật trạng thái đang xử lý
         $db->query("UPDATE heavy_report_jobs SET status = 'PROCESSING' WHERE id = $job_id");
         
