@@ -287,13 +287,13 @@ This benchmark evaluates state-of-the-art (SOTA) security testing tools—includ
       <td rowspan="3" align="center"><b>DAST</b></td>
       <td>sqlmap<sup><a href="#ref-12">[12]</a></sup></td>
       <td align="center">✅</td>
+      <td align="center">❌</td>
+      <td align="center">❌</td>
+      <td align="center">❌</td>
+      <td align="center">❌</td>
+      <td align="center">❌</td>
       <td align="center">✅</td>
       <td align="center">❌</td>
-      <td align="center">❌</td>
-      <td align="center">❌</td>
-      <td align="center">❌</td>
-      <td align="center">✅</td>
-      <td align="center">✅</td>
       <td align="center">❌</td>
       <td align="center">❌</td>
     </tr>
