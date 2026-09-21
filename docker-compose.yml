@@ -1,34 +1,17 @@
 services:
   db:
     image: mysql:8.0
-    container_name: phuzz-db
-    command: >
-      --general-log=1
-      --general-log-file=/var/log/mysql/general.log
-      --log-raw
-      --skip-name-resolve
-      --innodb-doublewrite=0
-      --innodb-flush-log-at-trx-commit=0
-      --sync-binlog=0
-      --log-bin=mysql-bin
-      --binlog-format=ROW
-      --server-id=1
+    container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_INITDB_SKIP_TZINFO: "yes"
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
     ports:
       - "3306:3306"
-    tmpfs:
-      - /var/lib/mysql
     volumes:
-      - ./mysql-log:/var/log/mysql
       - ./db/install_schema.sql:/docker-entrypoint-initdb.d/install_schema.sql
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "test -f /tmp/db_healthy || (mysqladmin ping -h localhost -uroot -prootpassword --silent && touch /tmp/db_healthy)"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u${DB_USER} -p${DB_PASS} --silent"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -36,12 +19,12 @@ services:
 
   web:
     build: .
-    container_name: phuzz-php
+    container_name: web
     environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASS: ${MYSQL_ROOT_PASSWORD}
-      DB_NAME: ${MYSQL_DATABASE}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
     volumes:
       - ./src:/var/www/html
     depends_on:
@@ -51,7 +34,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: phuzz-nginx
+    container_name: nginx
     ports:
       - "8080:80"
     volumes:
