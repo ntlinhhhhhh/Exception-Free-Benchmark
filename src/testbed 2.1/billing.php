@@ -1,12 +1,15 @@
 <?php
-// Exception-Free Benchmark - Pattern 1: System-Level Exception Masking
-// Testbed 2.1: The Batching Blackhole (multi_query) (Sink)
-// Description: Uses multi_query without checking subsequent results, causing errors to be swallowed.
+/**
+ * Testbed 2.1 — CRM Loyalty Program (Sink)
+ *
+ * Activates loyalty membership for a registered client. On first access,
+ * the client is enrolled at BRONZE tier: loyalty record is created, status
+ * is updated, and an activation event is logged — all via multi_query.
+ * Errors from subsequent statements in the batch are silently swallowed.
+ */
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-$db_host = getenv('DB_HOST') ?: 'db';
-$db_user = getenv('DB_USER') ?: 'root';
-$db_pass = getenv('DB_PASS') ?: 'rootpassword';
-$db_name = getenv('DB_NAME') ?: 'db';
+
+require_once __DIR__ . '/../config.php';
 
 $db = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
@@ -15,21 +18,18 @@ function validate_safe_id($id) {
 }
 
 function process_loyalty_sync($db, $input_id) {
-    // 1. LÍNH GÁC 1: Chặn ID sai
     $clean_id = validate_safe_id($input_id) ? (int)$input_id : 0;
 
-    // 2. LÍNH GÁC 2: Chặn User không tồn tại
     $result = $db->query("SELECT client_name, is_synced FROM clients WHERE id = $clean_id");
     if ($result->num_rows === 0) {
         error_log("Client ID $clean_id not found.");
-        return null; // Thoát hàm ngay
+        return null;
     }
 
     $row = $result->fetch_assoc();
     $cname = $row['client_name'];
     $is_synced = (int)$row['is_synced'];
 
-    // 3. VÙNG AN TOÀN: Code bây giờ hoàn toàn phẳng, không dùng Transaction
     try {
         if ($is_synced === 0) {
             $msg = "Enrolled new loyal customer: " . $cname;
@@ -38,30 +38,20 @@ function process_loyalty_sync($db, $input_id) {
                     INSERT INTO system_logs (client_id, event_type, message) VALUES ($clean_id, 'NEW_MEMBER_ACTIVATION', '$msg')";
 
             $db->multi_query($sql);
-            
-            $status = "NEW ENROLLMENT";
-            $tier = "BRONZE";
-            $spent = 0; 
 
             return [
-                "tier" => $tier,
-                "spent" => $spent,
-                "status" => $status
+                "tier"   => "BRONZE",
+                "spent"  => 0,
+                "status" => "NEW ENROLLMENT"
             ];
         }
     } catch (Exception $e) {
         error_log("Failed to process client ID $clean_id: " . $e->getMessage());
-        return null; // Nuốt lỗi Fuzzer (SQLi)
+        return null;
     }
 }
 
-// ==========================================
-// TẦNG GIAO DIỆN (CHẠY CHÍNH)
-// ==========================================
 $input_id = (int)$_GET['id'] ?? null;
-
-// Gọi hàm xử lý, nhận về data hoặc null
 $report_data = process_loyalty_sync($db, $input_id);
 
 echo "<h1>Corporate Loyalty Dashboard</h1>";
-?>

@@ -1,21 +1,19 @@
 <?php
-// Exception-Free Benchmark - Pattern 1: System-Level Exception Masking
-// Testbed 1: The Explicit Silent Mode (Source)
-// Description: Logs tracking details safely using prepared statements, later read by Sink.
-$db_host = getenv('DB_HOST') ?: 'db';
-$db_user = getenv('DB_USER') ?: 'root';
-$db_pass = getenv('DB_PASS') ?: 'rootpassword';
-$db_name = getenv('DB_NAME') ?: 'db';
+/**
+ * Testbed 1 — Web Traffic Analytics (Source)
+ *
+ * Records each incoming HTTP visit (IP address and User-Agent) into raw_traffic
+ * for later batch aggregation by the analytics cronjob.
+ * Input is stored safely via a prepared statement.
+ */
+require_once __DIR__ . '/../config.php';
 
 $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass);
-// Ở Source, lập trình viên code rất cẩn thận, bật Exception nghiêm ngặt
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Lấy User-Agent từ HTTP Header (Fuzzer hộp đen thường lãng quên Header)
 $raw_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
-$agent = substr($raw_agent, 0, 255); 
+$agent = substr($raw_agent, 0, 255);
 
-// Đã thêm access_time (NOW()) theo đúng chuẩn thiết kế Log hệ thống
 $stmt = $pdo->prepare("INSERT INTO raw_traffic (ip_address, user_agent, access_time) VALUES (?, ?, NOW())");
 
 try {
@@ -24,4 +22,3 @@ try {
 } catch (Exception $e) {
     error_log("Tracking error: " . $e->getMessage());
 }
-?>
