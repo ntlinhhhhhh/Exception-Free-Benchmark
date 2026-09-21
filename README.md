@@ -70,14 +70,31 @@ The vulnerability is split across decoupled contexts (e.g., synchronous web requ
 
 1.  Clone the repository and navigate to the project directory:
     ```powershell
-    cd benchmark-second-order-sqli
+    git clone https://github.com/ntlinhhhhhh/Exception-Free-Benchmark.git
+    cd Exception-Free-Benchmark
     ```
-2.  Start the containers:
+2.  Configure the environment variables by creating a `.env` file (or copy from `.env.example`):
+    ```bash
+    cp .env.example .env
+    ```
+    Ensure your `.env` contains the following configuration:
+    ```env
+    # Configuration for MySQL Database
+    DB_PORT=3306
+    DB_HOST=db
+    DB_USER=root
+    DB_PASS=password
+    DB_NAME=db
+
+    WEB_PORT=8080
+    ```
+
+3.  Start the containers:
     ```powershell
     docker-compose up -d --build
     ```
-3.  Access the interactive Dashboard at:
-    `http://localhost:8888`
+4.  Access the interactive Dashboard at:
+    `http://localhost:8080` (or `http://localhost:<WEB_PORT>` if modified)
 
 ---
 
