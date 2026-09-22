@@ -22,3 +22,4 @@ $stmt->bind_param("is", $admin_id, $safe_region);
 $stmt->execute();
 
 echo json_encode(["status" => "queued", "job_id" => $stmt->insert_id, "message" => "Heavy calculation started in background."]);
+$db->close();

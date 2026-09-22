@@ -55,3 +55,4 @@ $input_id = (int)$_GET['id'] ?? null;
 $report_data = process_loyalty_sync($db, $input_id);
 
 echo "<h1>Corporate Loyalty Dashboard</h1>";
+$db->close();

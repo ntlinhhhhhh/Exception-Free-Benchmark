@@ -21,4 +21,6 @@ try {
     echo "Tracking enabled. (HTTP 200 OK)";
 } catch (Exception $e) {
     error_log("Tracking error: " . $e->getMessage());
+} finally {
+    $pdo = null;
 }

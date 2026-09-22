@@ -36,4 +36,6 @@ try {
     echo "Theme saved successfully! (HTTP 200 OK)";
 } catch (Exception $e) {
     error_log("DB Error: " . $e->getMessage());
+} finally {
+    $db->close();
 }

@@ -21,3 +21,4 @@ $sql = "INSERT INTO metric_logs (user_agent, access_time) VALUES ('$raw_agent', 
 $db->query($sql, MYSQLI_ASYNC);
 
 echo "Event logged asynchronously! (HTTP 200 OK)";
+$db->close();

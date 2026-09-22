@@ -28,3 +28,4 @@ foreach ($rows as $row) {
 }
 
 echo "Aggregation complete. (HTTP 200 OK)";
+$pdo = null;

@@ -25,3 +25,4 @@ $db->query($log_sql);
 
 echo "<body style='font-family: " . htmlspecialchars($font) . "'>";
 echo "<h1>Welcome to CMS</h1>";
+$db->close();

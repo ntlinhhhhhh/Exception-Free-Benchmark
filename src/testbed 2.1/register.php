@@ -31,4 +31,6 @@ try {
     echo "Client registered successfully!";
 } catch (Exception $e) {
     error_log("System error: " . $e->getMessage());
+} finally {
+    $db->close();
 }
